@@ -72,8 +72,24 @@ ggplot(data = mpg) +
              color = "red",
              fill = "yellow", stroke = 5)
 
+# FACETS
 
+# facet_wrap(~ <FORMULA_VARIABLE>): la variable debe de ser discreta
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_wrap(~ class, nrow = 3)
 
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_wrap(~ cty, nrow = 3)
 
+# facet_grid(<FORMULA_VARIABLE1> ~ <FORMULA_VARIABLE2>)
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_grid(drv ~ cyl)
+  
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_grid(. ~ cyl)
 
-
+  
