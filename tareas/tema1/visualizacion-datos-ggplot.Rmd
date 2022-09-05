@@ -1,0 +1,84 @@
+---
+title: "Tarea - Visualización de Datos con ggplot2"
+author: "Jesus Mudarra Luján"
+date: '2022-09-05'
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+# Ejercicio 1
+
+Si ejecutas `ggplot(data = mpg)`, ¿qué observas?
+
+No se observa nada en el plot. Únicamente se ha creado un sistema de coordenadas vacío donde se está indicando a ggplot2 que se utilice como fuente de datos el dataset `mpg`.
+
+# Ejercicio 2
+
+Indica el número de filas que tiene el data frame `mpg`. ¿Qué significa cada fila?
+
+```{r}
+nrow(mpg)
+```
+
+El data frame `mpg` contiene un total de 234 filas. Cada fila representa una observación correspondiente a un coche.
+
+# Ejercicio 3
+
+Indica el número de columnas que tiene el data frame `mpg`. ¿Qué significa cada columna?
+
+```{r}
+ncol(mpg)
+```
+
+El data frame `mpg` contiene un total de 11 columnas. Cada columna representa una variable de un coche.
+
+* manufacturer: nombre del fabricante
+* model: nombre del modelo
+* displ: cilindrada del motor, en litros
+* year: año de fabricación
+* cyl: número de cilindradas
+* trans: tipo de transmisión
+* drv: tipo de tracción
+* cty: millas por galón en ciudad
+* hwy: millas por galón en carretera
+* fl: tipo de combustible
+* class: tipo de coche
+
+# Ejercicio 4
+
+Observa la variable `drv` del data frame. ¿Qué describe? Recuerda que puedes usar la instrucción `?mpg` para consultarlo directamente en `R`.
+
+Utilizando la instrucción `?mpg` podemos observar que la variable `drv` representa el tipo de tracción del coche donde, f = tracción delantera, r = tracción trasera, 4 = tracción a las 4 ruedas.
+
+# Ejercicio 5
+
+Realiza un scatterplot de la variable `hwy` vs `cyl`. ¿Qué observas?
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = hwy, y = cyl))
+```
+
+# Ejercicio 6
+
+Realiza un scatterplot de la variable `cty` vs `cyl`. ¿Qué observas?
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = cty, y = cyl))
+```
+
+# Ejercicio 7
+
+Realiza un scatterplot de la variable `class` vs `drv`. ¿Qué observas? ¿Es útil este diagrama? ¿Por qué?
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = class, y = drv))
+```
+
+Sí que es útil el diagrama ya que nos está indicando los tipos de tracciones que existen para cada modelo de coche.

@@ -1,0 +1,104 @@
+---
+title: "Tarea - Estéticas en ggplot"
+author: "Jesus Mudarra Luján"
+date: '2022-09-05'
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+# Ejercicio 1
+
+Toma el siguiente fragmento de código y di qué está mal. ¿Por qué no aparecen pintados los puntos de color verde?
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy, color = "green"))
+```
+  
+Porque el parametro `color` del `aes` del `mapping` necesita que le pasemos variables categóricas y no numéricas.
+  
+Para que aparezcan de color verde se tendría que ejectuar la siguiente línea:
+  
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy), color = "green")
+```
+  
+# Ejercicio 2
+
+Toma el dataset de mpg anterior y di qué variables son categóricas.
+
+Las variables categóricas del dataset `mpg` son:
+
+* manufacturer
+* model
+* trans
+* drv
+* fl
+* class
+
+# Ejercicio 3
+
+Las variables contínuas del dataset `mpg` son:
+
+* displ
+* year
+* cyl
+* cty
+* hwy
+
+# Ejercicio 4
+
+Dibuja las variables continuas con color, tamaño y forma respectivamente.
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy),
+             color = "purple",
+             size = 5,
+             shape = 21)
+```
+
+# Ejercicio 5
+
+¿En qué se diferencian las estéticas para variables continuas y categóricas?
+
+Las variables continuas representan el valor numérico y las variables categóricas indican a la categoría que corresponden.
+
+# Ejercicio 6
+
+¿Qué ocurre si haces un mapeo de la misma variable a múltiples estéticas?
+
+Se combinan entre ellas.
+
+# Ejercicio 7
+
+Vamos a conocer una estética nueva llamada `stroke`. ¿Qué hace? ¿Con qué formas funciona bien?
+
+Modifica el grosor del borde de los puntos.
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy),
+             color = "purple",
+             size = 3,
+             shape = 21,
+             stroke = 3)
+```
+
+Funciona bien con todas las formas excepto las rellenas de un color y sin borde (formas 15 - 20).
+
+# Ejercicio 8
+
+¿Qué ocurre si haces un mapeo de una estética a algo que no sea directamente el nombre de una variable (por ejemplo aes(color = displ < 4)?
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy, color = displ < 4))
+```
+
+Lo que ocurre es que para valores con un `displ < 4` los considera como `TRUE` y los pinta de un color y para los puntos que no cumplen esa condición los pinta de otro color.
