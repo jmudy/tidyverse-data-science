@@ -1,0 +1,76 @@
+---
+title: "Tarea - Introducción a R como Herramienta de Cálculo"
+author: "Jesus Mudarra Luján"
+date: '2022-09-07'
+output: pdf_document
+---
+
+# Ejercicio 1
+
+¿Por qué no funciona el siguiente código?
+
+```{r, eval=FALSE}
+my_variable <- 5
+my.variable
+```
+
+Errata al llamar a my_variable. Se introdujo un `.` en lugar de `_`.
+
+# Ejercicio 2
+
+¿Por qué no funciona el siguiente código?
+
+```{r, eval=FALSE}
+my_variable <- 5
+my_varIable
+```
+
+Errata al llamar a my_variable. Se introdujo un `I` en lugar de la letra `i`.
+
+# Ejercicio 3
+
+¿Por qué no funciona el siguiente código?
+
+```{r, eval=FALSE}
+my_variable <- 5
+my_var1able
+```
+
+Errata al llamar a my_variable. Se introdujo un `1` en lugar de la letra `i`.
+
+# Ejercicio 4
+
+¿Por qué no funciona el siguiente código?
+
+```{r, eval=FALSE}
+my_variable -> 5
+my_variable
+```
+
+La flecha de asignación del valor de la variable está al revés.
+
+# Ejercicio 5
+
+Las siguientes líneas pueden tener algun error de escritura. Localízalo y corrígelo para que funcione correctamente.
+
+```{r, eval=FALSE}
+librari(tidyverse)
+ggplot(dati = mpg) + geom_puint(mapping = aes(x = displ, y = hwy))
+fliter(mpg, cyl=6)
+filter(diamond, caret > 4)
+```
+
+Correcciones para que funcione correctamente:
+
+```{r}
+library(tidyverse)
+ggplot(data = mpg) + geom_point(mapping = aes(x = displ, y = hwy))
+filter(mpg, cyl == 6)
+filter(diamonds, carat > 4)
+```
+
+# Ejercicio 6
+
+Vamos a por un poco de magia oscura. Prueba la combinación `Alt + Shift + K`. ¿Qué hace? ¿Útil eh?
+
+Muestra todos los atajos de teclado útiles para RStudio.
