@@ -1,0 +1,71 @@
+---
+title: "Tarea - Calculando nuevas variables con dplyr"
+author: "Jesus Mudarra Luján"
+date: "`r Sys.Date()`"
+output: pdf_document
+header-includes:
+- \definecolor{shadecolor}{RGB}{235,235,235}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(nycflights13)
+```
+
+## Pregunta 1
+
+El dataset de vuelos tiene dos variables, `dep_time` y `sched_dep_time` muy útiles pero difíciles de usar por cómo vienen dadas al no ser variables continuas. Fíjate que cuando pone 559, se refiere a que el vuelo salió a las 5:59...
+
+Convierte este dato en otro más útil que represente el número de minutos que han transcurrido desde media noche.
+
+```{r}
+mutate(flights,
+       dep_time = paste0((dep_time%/%100),":",dep_time%%100),
+       sched_dep_time = paste0((sched_dep_time%/%100),":",sched_dep_time%%100))
+```
+
+## Pregunta 2
+
+Compara las variables air_time contra `arr_time` - `dep_time`.
+
+* ¿Qué esperas ver?
+* ¿Qué ves realmente?
+* ¿Se te ocurre algo para mejorarlo y corregirlo?
+
+
+
+
+## Pregunta 3
+
+Compara los valores de `dep_time`, `sched_dep_time` y `dep_delay`. Cómo deberían relacionarse estos tres números? Compruébalo y haz las correcciones numéricas que necesitas.
+
+
+
+
+## Pregunta 4
+
+Usa una de las funciones de ranking para quedarte con los 10 vuelos más retrasados de todos.
+
+
+
+
+## Pregunta 5
+
+Aunque la ejecución te dé una advertencia, qué resultado te da la operación
+
+1:6 + 1:20
+
+```{r}
+1:6 + 1:20
+```
+
+Cuando acaba la secuencia 1:6 vuelve a empezar, es decir, que a partir del séptimo elemento se sumaría 1 + 7, 2 + 8, 3 + 9, ..., 2 + 20.
+
+## Pregunta 6
+
+Además de todas las funciones que hemos dicho, las trigonométricas también son funciones vectoriales que podemos usar para hacer transformaciones con `mutate`. Investiga cuales trae `R` y cual es la sintaxis de cada una de ellas.
+
+
+
+

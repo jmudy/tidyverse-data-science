@@ -1,0 +1,105 @@
+---
+title: "Tarea - Ordenando y Seleccionando Datos con dplyr"
+author: "Jesus Mudarra Luján"
+date: "`r Sys.Date()`"
+output: pdf_document
+header-includes:
+- \definecolor{shadecolor}{RGB}{235,235,235}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(nycflights13)
+```
+
+## Pregunta 1
+
+Piensa cómo podrías usar la función `arrange()` para colocar todos los valores `NA` al inicio. Pista: puedes la función `is.na()` en lugar de la función `desc()` como argumento de `arrange`.
+
+```{r}
+arrange(flights, desc(is.na(flights)))
+```
+
+## Pregunta 2
+
+Ordena los vuelos de `flights` para encontrar los vuelos más retrasados en la salida. ¿Qué vuelos fueron los que salieron los primeros antes de lo previsto?
+
+```{r}
+arrange(flights, desc(dep_delay))
+
+head(arrange(flights, dep_delay))
+```
+
+El vuelo N592JB que fue de `JFK` a `DEN` salió 43 minutos antes de lo previsto.
+
+## Pregunta 3
+
+Ordena los vuelos de `flights` para encontrar los vuelos más rápidos. Usa el concepto de rapidez que consideres.
+
+```{r}
+flights %>%
+  arrange(air_time) %>%
+  select(tailnum, origin, dest, air_time)
+```
+
+## Pregunta 4
+
+¿Qué vuelos tienen los trayectos más largos? Busca en Wikipedia qué dos aeropuertos del dataset alojan los vuelos más largos.
+
+Honolulu (HNL) - New York (JFK): 8.020 kilómetros
+
+## Pregunta 5
+
+¿Qué vuelos tienen los trayectos más cortos? Busca en Wikipedia qué dos aeropuertos del dataset alojan los vuelos más cortos.
+
+
+Newark (EWR) - New York (LGA): 27 kilómetros
+
+## Pregunta 6
+
+Dale al coco para pensar cuántas más maneras posibles de seleccionar los campos `dep_time`, `dep_delay`, `arr_time` y `arr_delay` del dataset de `flights.`
+
+```{r}
+select(flights, dep_time, dep_delay, arr_time, arr_delay)
+select(flights, c(dep_time, dep_delay, arr_time, arr_delay))
+select(flights, starts_with("dep"), starts_with("arr"))
+```
+
+## Pregunta 7
+
+¿Qué ocurre si pones el nombre de una misma variable varias veces en un `select()`?
+
+No ocurre nada, por muchas veces que introduzcas la misma variable en la función `select()` solo aparecerá una vez.
+
+## Pregunta 8
+
+Investiga el uso de la función `one_of()` de `dplyr`
+
+Utilizando la función `one_of()` nos mostrará las columnas de todas las variables que le indiquemos en la función `select()` independientemente de si existe o no.
+
+## Pregunta 9
+
+Investiga cómo puede ser útil la función `one_of()` de la pregunta anterior en conjunción con el vector de variables
+
+`c("year", "month", "day", "dep_delay", "arr_delay")`
+
+Sin `one_of()` obtendremos un error en el `select()`:
+
+```{r, eval=FALSE}
+select(flights, c("year", "month", "day", "dep_delay", "arr_delay", "variable_inexistente"))
+```
+
+Con `one_of()` nos permite añadir variables que no se encuentran en el data frame:
+
+```{r}
+select(flights, one_of(c("year", "month", "day", "dep_delay", "arr_delay", "variable_inexistente")))
+```
+
+## Pregunta 10
+
+Intenta averiguar el resultado del siguiente código. Luego, ejecútalo y a ver si el resultado te sorprende. `select(flights, contains("time"))`
+
+Intenta averiguar cómo lo hacen las funciones de ayuda de la función `select` para tratar el caso por defecto y cómo lo puedes cambiar.
+
+Con el párametro `contains` mostrará todas las columnas de las variables que contengan la palabra "time".

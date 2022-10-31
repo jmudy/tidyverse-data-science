@@ -1,0 +1,121 @@
+---
+title: "Tarea - Filtrando los Datos con dplyr"
+author: "Jesus Mudarra Luján"
+date: "`r Sys.Date()`"
+output: pdf_document
+header-includes:
+- \definecolor{shadecolor}{RGB}{235,235,235}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(nycflights13)
+```
+
+## Pregunta 1
+
+Encuentra todos los vuelos que llegaron más de una hora tarde de lo previsto.
+
+```{r}
+filter(flights, arr_delay>60)
+```
+
+## Pregunta 2
+
+Encuentra todos los vuelos que volaron hacia San Francisco (aeropuertos SFO y OAK)
+
+```{r}
+filter(flights, dest=="SFO"|dest=="OAK")
+```
+
+# Pregunta 3
+
+Encuentra todos los vuelos operados por United American (UA) o por American Airlines (AA)
+
+```{r}
+filter(flights, carrier=="UA"|carrier=="AA")
+```
+
+## Pregunta 4
+
+Encuentra todos los vuelos que salieron los meses de primavera (Abril, Mayo y Junio)
+
+```{r}
+filter(flights, month %in% c(4,5,6))
+```
+
+## Pregunta 5
+
+Encuentra todos los vuelos que llegaron más de una hora tarde, pero salieron con menos de una hora de
+retraso.
+
+```{r}
+filter(flights, dep_delay<60&arr_delay>60)
+```
+
+## Pregunta 6
+
+Encuentra todos los vuelos que salieron con más de una hora de retraso, pero consiguieron llegar con menos
+de 30 minutos de retraso (el avión aceleró en el aire)
+
+```{r}
+filter(flights, dep_delay>60&arr_delay<30)
+```
+
+## Pregunta 7
+
+Encuentra todos los vuelos que salen entre medianoche y las 7 de la mañana (vuelos nocturnos).
+
+```{r}
+filter(flights, hour>=0, hour<7)
+```
+
+## Pregunta 8
+
+Investiga el uso de la función `between()` de `dplyr`. ¿Qué hace? ¿Puedes usarlo para resolver la sintaxis
+necesaria para responder alguna de las preguntas anteriores?
+
+Se trata de un atajo para $x \geq$ izquierda y $x \leq$ derecha, implementado eficientemente en C++ para valores locales, y traducido al SQL apropiado para tablas remotas.
+
+Ejemplo resolviendo el ejercicio 4:
+
+```{r}
+filter(flights, between(month,4,6))
+```
+
+## Pregunta 9
+
+¿Cuántos vuelos tienen un valor desconocido de dep_time?
+
+```{r}
+sumNA <- sum(is.na(flights$dep_time))
+percNA <- sumNA/length(rownames(flights))*100
+```
+
+En dep_time hay `r sumNA` valores desconocidos, lo que representa un `r percNA`%.
+
+## Pregunta 10
+
+¿Qué variables del dataset contienen valores desconocidos? ¿Qué representan esas filas donde faltan los
+datos?
+
+Estas son las variables que contienen valores desconocidos.
+
+```{r}
+apply(flights, MARGIN = 2, FUN = function(x) sum(is.na(x)))
+```
+
+## Pregunta 11
+
+Ahora vas a sorprenderte con la magia oscura. . . Contesta qué dan las siguientes condiciones booleanas
+
+```{r}
+NA*0
+NA|TRUE
+FALSE&NA
+```
+
+Intenta establecer la regla general para saber cuando es o no es `NA` (cuidado con `NA*0`)
+
+Siempre se va a obtener un valor `NA` con cualquier tipo de operación excepto cuando se realice la operación booleana `OR` donde se obtendrá un valor de `TRUE` al dar por válido el valor no `NA`.
