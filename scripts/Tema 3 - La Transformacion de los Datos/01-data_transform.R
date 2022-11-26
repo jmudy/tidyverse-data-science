@@ -162,24 +162,66 @@ transmute(flights_new, # crea un dataset solo con estas columnas
 # * Aritmética modular: %/% -> cociente de la división entera, %% -> resto de la división entera
 #                       x == y*(x%/%y) + (x%%y)
 
-transmutate(flights,
-            air_time,
-            hour_air = air_time %/% 60,
-            minute_air = air_time %/% 60
-            )
+transmute(flights,
+          air_time,
+          hour_air = air_time %/% 60,
+          minute_air = air_time %/% 60
+          )
 
 
+# * Logaritmos: log() -> logartimo en base e, log2(), log10()
+# * Offsets: lead() -> mueve hacia la izquierda
+#            lag() -> mueve hacia la derecha
+
+df <- 1:12
+lag(df)
+lead(df)
 
 
+# * Funciones acumulativas: cumsum(), cumprod(), cummin(), cummax(), cummean()
+
+cumsum(df)
+cumprod(df)
+cummin(df)
+cummax(df)
+cummean(df)
 
 
+# * Comparaciones lógicas: >, >=, <, <=, ==, !=
+
+transmute(flights,
+          dep_delay,
+          has_been_delayed = dep_delay > 0)
 
 
+# * Rankings: min_rank()
 
+df <- c(7,1,2,5,3,3,8,NA,3,4,-2)
 
+df
+min_rank(df)
 
+df
+min_rank(desc(df))
 
+df
+row_number(df)
 
+df
+dense_rank(df)
+
+df
+percent_rank(df)
+
+df
+cume_dist(df)
+
+df
+ntile(df, n = 4)
+
+transmute(flights,
+          dep_delay,
+          ntile(dep_delay, n = 100))
 
 
 

@@ -21,34 +21,65 @@ Convierte este dato en otro más útil que represente el número de minutos que 
 
 ```{r}
 mutate(flights,
-       dep_time = paste0((dep_time%/%100),":",dep_time%%100),
-       sched_dep_time = paste0((sched_dep_time%/%100),":",sched_dep_time%%100))
+       dep_time = dep_time%/%100*60 + dep_time%%100,
+       sched_dep_time = sched_dep_time%/%100*60 + sched_dep_time%%100
+       )
 ```
 
 ## Pregunta 2
 
-Compara las variables air_time contra `arr_time` - `dep_time`.
+Compara las variables `air_time` contra `arr_time` - `dep_time`.
 
 * ¿Qué esperas ver?
+
+  Se espera ver el mismo resultado, ya que ambas opciones presentan el tiempo que se encuentra el avión en el aire.
+
+```{r}
+transmute(flights,
+          air_time,
+          arr_time,
+          dep_time,
+          arr_time - dep_time)
+```
+
 * ¿Qué ves realmente?
+
+  Lo que realmente ocurre es que no se encuentran en el mismo formato. Mientras que `air_time` es el tiempo en el aire en minutos, `arr_time` - `dep_time` es tiempo en el aire expresado en formato (HHMM o HMM)
+  
 * ¿Se te ocurre algo para mejorarlo y corregirlo?
 
-
-
+```{r}
+transmute(flights,
+          arr_time = arr_time%/%100*60 + arr_time%%100,
+          dep_time = dep_time%/%100*60 + dep_time%%100,
+          air_time= arr_time - dep_time)
+```
 
 ## Pregunta 3
 
 Compara los valores de `dep_time`, `sched_dep_time` y `dep_delay`. Cómo deberían relacionarse estos tres números? Compruébalo y haz las correcciones numéricas que necesitas.
 
-
-
+```{r}
+transmute(flights,
+          dep_time = dep_time%/%100*60 + dep_time%%100,
+          sched_dep_time = sched_dep_time%/%100*60 + sched_dep_time%%100,
+          dep_delay,
+          sched_dep_time_with_delay = sched_dep_time + dep_delay)
+```
 
 ## Pregunta 4
 
 Usa una de las funciones de ranking para quedarte con los 10 vuelos más retrasados de todos.
 
-
-
+```{r}
+delay.rank<-arrange(mutate(flights,
+               m_r=min_rank(desc(dep_delay))
+               ),
+        m_r
+        )
+library(knitr)
+head(delay.rank, 10)
+```
 
 ## Pregunta 5
 
@@ -66,6 +97,23 @@ Cuando acaba la secuencia 1:6 vuelve a empezar, es decir, que a partir del sépt
 
 Además de todas las funciones que hemos dicho, las trigonométricas también son funciones vectoriales que podemos usar para hacer transformaciones con `mutate`. Investiga cuales trae `R` y cual es la sintaxis de cada una de ellas.
 
+```{r}
+?Trig
+```
 
+Estas funciones dan las funciones básicas trigonométricas. Calculan respectivamente el coseno, el seno, la tangente, el arcocoseno, el arcoseno, el arcotangente y el arcotangente de dos argumentos.
 
+```{r, eval=FALSE}
+cos(x)
+sin(x)
+tan(x)
 
+acos(x)
+asin(x)
+atan(x)
+atan2(y, x)
+
+cospi(x)
+sinpi(x)
+tanpi(x)
+```
