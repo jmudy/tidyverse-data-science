@@ -20,13 +20,14 @@ View(flights)
 ## * select() -> seleccionar variables por sus nombres
 ## * mutate() -> crea nuevas variables con funciones a partir de las existentes
 ## * summarise() -> colapsar varios valores para dar un resumen de los mismos
-## * group_by() -> opera la función a la que acompñaa grupo a grupo
+## * group_by() -> opera la función a la que acompaña grupo a grupo
 
 ## 1 - data frame
 ## 2 - operaciones que queremos hacer a las variables del data frame
 ## 3 - resultado en un nuevo data frame
 
-### FILTER
+
+## FILTER
 
 jan1 <- filter(flights, month==1, day==1)
 dec25 <- filter(flights, month==12, day==25)
@@ -98,6 +99,7 @@ View(arrange(flights, carrier))
 
 View(arrange(flights, desc(distance)))
 
+
 ## SELECT
 
 View(sorted.date[1024:1068,])
@@ -130,6 +132,7 @@ rename(flights, deptime = dep_time,
 select(flights, deptime = dep_time)
 
 select(flights, time_hour, distance, air_time, everything())
+
 
 ## MUTATE
 
@@ -224,5 +227,228 @@ transmute(flights,
           ntile(dep_delay, n = 100))
 
 
+## SUMMARISE
+
+summarise(flights, delay = mean(dep_delay, na.rm = T))
+
+by_month_group <- group_by(flights, year, month)
+summarise(by_month_group, delay = mean(dep_delay, na.rm = T))
+
+by_day_group <- group_by(flights, year, month, day)
+summarise(by_day_group,
+          delay = mean(dep_delay, na.rm = T),
+          median = median(dep_delay, na.rm = T),
+          min = min(dep_delay, na.rm = T)
+          )
+
+mutate(summarise(group_by(flights, carrier),
+                 delay = mean(dep_delay, na.rm = T)),
+       sorted = min_rank(delay)
+       )
 
 
+### PIPES
+group_by_dest <- group_by(flights, dest)
+delay <- summarise(group_by_dest,
+                   count = n(),
+                   dist = mean(distance, na.rm = T),
+                   delay = mean(arr_delay, na.rm = T)
+                   )
+delay <- filter(delay, count > 100, dest != "HNL")
+
+ggplot(data = delay, mapping = aes(x = dist, y = delay)) +
+  geom_point(aes(size = count), alpha = 0.2) +
+  geom_smooth(se = F) +
+  geom_text(aes(label = dest), alpha = 0.6, size = 2.5)
+
+delays <- flights %>%
+  group_by(dest) %>%
+  summarise(
+    count = n(),
+    dist = mean(distance, na.rm = T),
+    delay = mean(arr_delay, na.rm = T)
+  ) %>%
+  filter(count > 100, dest != "HNL")
+
+# x %>% f(y) <-> f(x,y)
+# x %>% f(y) %>% g(z) <-> g(f(x,y),z)
+# x %>% f(y) %>% g(z) %>% h(t) <-> h(g(f(x,y),z),t)
+
+## Problemas con los NAs
+
+flights %>%
+  group_by(year, month, day) %>%
+  summarise(mean = mean(dep_delay, na.rm = T),
+            median = median(dep_delay, na.rm = T),
+            sd = sd(dep_delay, na.rm = T),
+            count = n()
+            )
+
+not_cancelled <- flights %>%
+  filter(!is.na(dep_delay), !is.na(arr_delay))
+  
+flights %>%
+  filter(!is.na(dep_delay), !is.na(arr_delay)) %>%
+  group_by(year, month, day) %>%
+  summarise(mean = mean(dep_delay, na.rm = T),
+            median = median(dep_delay, na.rm = T),
+            sd = sd(dep_delay, na.rm = T),
+            count = n()
+  )
+
+delay_numtail <- not_cancelled %>%
+  group_by(tailnum) %>%
+  summarise(delay = mean(arr_delay))
+
+ggplot(data = delay_numtail, mapping = aes(x = delay)) +
+  geom_freqpoly(binwidth = 5)
+
+ggplot(data = delay_numtail, mapping = aes(x = delay)) +
+  geom_histogram(binwidth = 5)
+
+delay_numtail <- not_cancelled %>%
+  group_by(tailnum) %>%
+  summarise(delay = mean(arr_delay),
+            count = n()
+            )
+
+ggplot(data = delay_numtail, mapping = aes(x = count, y = delay)) +
+  geom_point(alpha = 0.1)
+
+delay_numtail %>%
+  filter(count > 20) %>%
+  ggplot(mapping = aes(x = count, y = delay)) +
+  geom_point(alpha = 0.2)
+
+## Ejemplo del Béisbol
+
+View(Lahman::Batting)
+?Lahman::Batting
+
+batting <- as_tibble(Lahman::Batting)
+
+batters <- batting %>%
+  group_by(playerID) %>%
+  summarise(hits = sum(H, na.rm = T),
+            bats = sum(AB, na.rm = T),
+            bat.average = hits/bats
+            )
+
+batters %>%
+  filter(bats > 100) %>%
+  ggplot(mapping = aes(x = bats, y = bat.average)) +
+  geom_point(alpha = 0.2) +
+  geom_smooth(se = F)
+
+batters %>%
+  filter(bats > 100) %>%
+  arrange(desc(bat.average))
+
+
+# * Medidas de Centralización
+
+not_cancelled %>%
+  group_by(carrier) %>%
+  summarise(mean = mean(arr_delay),
+            mean2 = mean(arr_delay[arr_delay > 0]),
+            median = median(arr_delay)
+            )
+
+# * Medidas de dispersión
+not_cancelled %>%
+  group_by(carrier) %>%
+  summarise(sd = sd(arr_delay),
+            iqr = IQR(arr_delay),
+            mad = mad(arr_delay)
+            ) %>%
+  arrange(desc(sd))
+
+# * Medidas de orden
+not_cancelled %>%
+  group_by(carrier) %>%
+  summarise(first = min(arr_delay),
+            q1 = quantile(arr_delay, 0.25),
+            median = quantile(arr_delay, 0.5),
+            q3 = quantile(arr_delay, 0.75),
+            last = max(arr_delay)
+            )
+
+# * Medidas de posición
+not_cancelled %>%
+  group_by(carrier) %>%
+  summarise(first_dep = first(dep_time),
+            second_dep = nth(dep_time, 2),
+            third_dep = nth(dep_time, 3),
+            last_dep = last(dep_time)
+            )
+
+not_cancelled %>%
+  group_by(carrier) %>%
+  mutate(rank = min_rank(dep_time)) %>%
+  filter(rank %in% range(rank))
+
+
+# * Funciones de conteo
+flights %>%
+  group_by(dest) %>%
+  summarise(count = n(),
+            carriers = n_distinct(carrier),
+            arrivals = sum(!is.na(arr_delay))
+            ) %>%
+  arrange(desc(carriers))
+
+not_cancelled %>%
+  count(dest)
+
+not_cancelled %>%
+  count(tailnum, wt = distance)
+
+## sum/mean de valores lógicos
+not_cancelled %>%
+  group_by(year, month, day) %>%
+  summarise(n_prior_5 = sum(dep_time < 500))
+
+not_cancelled %>%
+  group_by(carrier) %>%
+  summarise(more_than_hour_delay = mean(arr_delay > 60)) %>%
+  arrange(desc(more_than_hour_delay))
+
+
+## Agrupaciones múltiples
+
+daily <- group_by(flights, year, month, day)
+per_day <- summarise(daily, n_fl = n())
+per_day
+
+per_month <- summarise(per_day, n_fl = sum(n_fl))
+per_month
+
+per_year <- summarise(per_month, n_fl = sum(n_fl))
+per_year
+
+business <- group_by(flights, carrier, dest, origin)
+summarise(business, n_fl = n()) %>%
+  summarise(n_fl = sum(n_fl)) %>%
+  summarise(n_fl = sum(n_fl))
+
+daily %>%
+  ungroup() %>%
+  summarise(n_fl = n())
+
+business %>%
+  ungroup() %>%
+  summarise(n_fl = n())
+
+flights %>%
+  group_by(year, month, day) %>%
+  filter(rank(desc(arr_delay)) < 10)
+
+popular_dest <- flights %>%
+  group_by(dest) %>%
+  filter(n() > 365)
+popular_dest
+
+popular_dest %>%
+  filter(arr_delay > 0) %>%
+  mutate(prop_delay = arr_delay/sum(arr_delay)) %>%
+  select(year:day, dest, arr_delay, prop_delay)

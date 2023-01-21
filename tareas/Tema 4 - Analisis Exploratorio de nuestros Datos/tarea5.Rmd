@@ -1,0 +1,93 @@
+---
+title: "Tarea: Introducción a la Exploración de los Datos"
+author: "Jesus Mudarra Luján"
+date: "`r Sys.Date()`"
+output: pdf_document
+header-includes:
+- \definecolor{shadecolor}{RGB}{235,235,235}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, comment = "")
+library(tidyverse)
+```
+
+## Pregunta 1
+
+Explora la distribución de las variables `x`, `y`, `z` del dataset de `diamonds`. ¿Qué podemos inferir?
+
+Busca un diamante (por internet por ejemplo) y decide qué dimensiones pueden ser aceptables para las medidas de longitud, altura y anchura de un diamante.
+
+```{r}
+ggplot(data = diamonds) +
+  geom_histogram(mapping = aes(x = x), binwidth = 1)
+
+ggplot(data = diamonds) +
+  geom_histogram(mapping = aes(x = y), binwidth = 1)
+
+ggplot(data = diamonds) +
+  geom_histogram(mapping = aes(x = z), binwidth = 1)
+```
+
+
+
+## Pregunta 2
+
+Explora la distribución del precio (`price`) del dataset de `diamonds.` ¿Hay algo que te llame la atención o resulte un poco extraño?
+
+Recuerda hacer uso del parámetro `binwidth` para probar un rango dispar de valores hasta ver algo que te llame la atención.
+
+```{r}
+ggplot(data = diamonds) +
+  geom_histogram(mapping = aes(x = price), binwidth = 2500)
+```
+
+
+
+## Pregunta 3 
+
+¿Cuántos diamantes hay de 0.99 kilates? ¿Y de exactamente 1 kilate?
+
+```{r}
+diamonds %>%
+  filter(carat==0.99) %>%
+  summarise(count = n())
+```
+
+```{r}
+diamonds %>%
+  filter(carat==1) %>%
+  summarise(count = n())
+```
+
+¿A qué puede ser debida esta diferencia?
+
+
+
+## Pregunta 4
+
+Compara y contrasta el uso de las funciones `coord_cartesian()` frente `xlim()` y `ylim()` para hacer zoom en un histograma.
+
+¿Qué ocurre si dejamos el parámetro `binwidth` sin configurar?
+
+¿Qué ocurre si hacemos zoom y solamente se ve media barra?
+
+
+
+
+## Pregunta 5
+
+* ¿Qué ocurre cuando hay NAs en un histograma?
+
+* ¿Qué ocurre cuando hay NAs en un diagrama de barras?
+
+* ¿Qué diferencias observas?
+
+
+
+
+## Pregunta 6 HECHA
+
+¿Qué hace la opción `na.rm = TRUE` en las funciones `mean()` y `sum()`?
+
+Indica si los valores `NA` deben eliminarse antes de calcular las funciones media y suma.

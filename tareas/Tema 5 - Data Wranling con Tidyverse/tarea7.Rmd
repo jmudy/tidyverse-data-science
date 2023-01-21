@@ -1,0 +1,136 @@
+---
+title: "Tarea: Las Tibbles de tidyverse"
+author: "Jesus Mudarra Luján"
+date: "`r Sys.Date()`"
+output: pdf_document
+header-includes:
+- \definecolor{shadecolor}{RGB}{235,235,235}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, comment = "")
+library(tidyverse)
+```
+
+## Pregunta 1
+
+¿Tibble o no tibble? ¿Cómo sabes si un objeto es una tibble o no?
+
+Pista: imprime los objetos `mtcars` por un lado y `nycflights13::flights` que son respectivamente un data frame y una tibble.
+
+```{r}
+print(mtcars)
+print(nycflights13::flights)
+```
+
+Hay varias formas de identificar si un objeto es una tibble o no. La primera es mediante la función `class()`. Por ejemplo:
+
+```{r}
+class(mtcars)
+class(nycflights13::flights)
+```
+
+Otra forma es fijándonos en la información que nos arroja la función `print()`. Si nos indica el tipo de dato de cada columna es una tibble; además nos imprime al principio que se trata de una tibble indicando las dimensiones de la tabla. También, podemos darnos cuenta de que en las tibbles nos da un número limitado de filas.
+
+## Pregunta 2
+
+Compara y contrasta las siguientes operaciones en el data frame y su equivalente en tibble.
+
+```{r}
+df <- data.frame(abc = 1, xyz = "a")
+df$x
+df[,"xyz"]
+df[,c("abc","xyz")]
+```
+
+Equivalente en tibble:
+
+```{r}
+df <- tibble(abc = 1, xyz = "a")
+df$x
+df[,"xyz"]
+df[,c("abc","xyz")]
+```
+
+* ¿En qué se parecen?
+
+Se parecen en la forma de acceder a sus elementos mediante corchetes o el símbolo "$".
+
+* ¿En qué difieren?
+
+En la forma de mostrar los resultados por pantalla. Las tibbles son más restrictivas; como se puede observar en el código anterior, al no existir una variable llamada `x` cuando accede con `df$x` salta un warning. Con dataframes `R` interpreta que se trataría de la variable `xyz`.
+
+* ¿Por qué a veces el data frame por defecto nos puede causar mucha frustración?
+
+Al crear subconjuntos empleando corchetes, cuando trabajamos con data frames, en ocasiones nos devolverá un vector y en ocasiones nos devolverá un data frame. Si utilizamos una tibble nos devolverá siempre una tibble.
+
+## Pregunta 3
+
+Si tenemos el nombre de una variable almacenada en un objeto tipo string (por ejemplo `myvar <- "mpg"`), ¿cómo podemos extraer la variable referenciada de una tibble? ¿Y en un data frame?
+
+Tanto en un data frame como en una tibble se podría extraer la variable de la siguiente manera:
+
+```{r, eval=FALSE}
+dataframe[[variable]]
+```
+
+## Pregunta 4
+
+Toma la siguiente tibble formada por variables con nombres no sintácticos.
+
+```{r}
+df <- tibble(
+  `1` = 1:12,
+  `2` = `1`*2 + `1`*runif(length(`1`))
+)
+```
+
+* Extrae el valor de la variable 1
+
+```{r}
+df %>% .$`1`
+```
+
+* Haz un scatterplot de la variable 1 contra la variable 2
+
+```{r}
+df %>%
+  ggplot(aes(`1`, `2`)) +
+  geom_point()
+```
+
+* Crea una nueva columna llamada 3 que sea el cociente de 2 entre 1.
+
+```{r}
+df <- df %>%
+  mutate(`3` = `2`/`1`)
+```
+
+Renombra las columnas para que se llamen x, y, z respectivamente.
+
+```{r}
+df <- df %>%
+  rename(
+    x = `1`,
+    y = `2`,
+    z = `3`,
+  )
+```
+
+* ¿Qué nombre crees que es mejor?
+
+Es mejor de la forma $x,y,z$ ya que es más fácil extraer el valor de las variables dado que no tienes que tener en cuenta los símbolos `` `` cuando números.
+
+## Pregunta 5
+
+Investiga acerca de la función `tibble::enframe()` y `tibble::deframe()`. ¿Qué hace y para qué puede servirte?
+
+`enframe()` convierte vectores atómicos o listas con nombre en data frames de una o dos columnas. Para una lista, el resultado será un tibble anidado con una columna de tipo lista. Para vectores sin nombre, se utiliza la secuencia natural como columna de nombre.
+
+`deframe()` convierte data frames de dos columnas en un vector o lista con nombre, utilizando la primera columna como nombre y la segunda columna como valor. Si la entrada sólo tiene una columna, se devuelve un vector sin nombre.
+
+## Pregunta 6
+
+¿Cómo podemos controlar cuántos nombres de columna adicionales se imprimen en el footer de una tibble?
+
+mediante el argumento `width` de la función `print`. Si queremso que se muestren todas las columnas pondremos `width = Inf`.

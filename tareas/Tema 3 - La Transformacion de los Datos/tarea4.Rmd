@@ -8,7 +8,7 @@ header-includes:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, comment = "")
 library(tidyverse)
 library(nycflights13)
 ```
@@ -26,17 +26,29 @@ Intenta describir con frases entendibles el conjunto de vuelos retrasados. Inten
 
 
 
-## Pregunta 2
+## Pregunta 2 HECHA A MEDIAS
 
 Da una versión equivalente a las pipes siguientes sin usar la función `count`:
 
 ```{r, eval=FALSE}
-not_cancelled %>% count(dest)
-not_cancelled %>% count(tailnum, wt = distance)
+not_cancelled %>%
+  count(dest)
 ```
 
+```{r}
+not_cancelled %>%
+  group_by(tailnum) %>%
+  summarise(n = n())
+```
 
+```{r, eval=FALSE}
+not_cancelled %>%
+  count(tailnum, wt = distance)
+```
 
+```{r}
+
+```
 
 ## Pregunta 3
 
@@ -44,8 +56,7 @@ Para definir un vuelo cancelado hemos usado la función:
 
 `(is.na(dep_delay) | is.na(arr_delay))`
 
-Intenta dar una definición que sea mejor, ya que la nuestra es un poco subóptima. ¿Cuál es la columna más
-importante?
+Intenta dar una definición que sea mejor, ya que la nuestra es un poco subóptima. ¿Cuál es la columna más importante?
 
 
 
@@ -69,10 +80,10 @@ Investiga si la proporción de vuelos cancelados está relacionada con el retras
 Difícil: Intenta desentrañar los efectos que producen los retrasos por culpa de malos aeropuertos vs malas compañías aéreas. Por ejemplo, intenta usar:
 
 ```{r, eval=FALSE}
-flights %>% group_by(carrier, dest) %>% summarise(n())
+flights %>%
+  group_by(carrier, dest) %>%
+  summarise(n())
 ```
-
-
 
 ## Pregunta 6
 
@@ -82,12 +93,17 @@ Vuelve a la lista de funciones útiles para filtrar y mutar y describe cómo cad
 
 
 
-## Pregunta 7
+## Pregunta 7 HECHA
 
 Vamos a por los peores aviones. Investiga el top 10 de qué aviones (número de cola y compañía) llegaron más tarde a su destino.
 
-
-
+```{r}
+top_tarde <- flights %>%
+  group_by(tailnum, carrier) %>%
+  summarise(mean = mean(arr_delay, na.rm = T)) %>%
+  arrange(desc(mean))
+head(top_tarde, 10)
+```
 
 ## Pregunta 8
 
@@ -106,15 +122,19 @@ Para cada uno de ellos, calcula la proporción del total de retraso para dicho d
 
 
 
+
+
 ## Pregunta 10
 
 Los retrasos suelen estar correlacionados con el tiempo. Aunque el problema que ha causado el primer retraso de un avión se resuelva, el resto de vuelos se retrasan para que salgan primero los aviones que debían haber partido antes. Intenta usar la función `lag()` y explora cómo el retraso de un avión se relaciona con el retraso del avión inmediatamente anterior o posterior.
 
 
 
+
+
 ## Pregunta 11
 
-Vamos a por los destinos esta vez. Localiza vuelos que llegaron ‘demasiado rápido’ a sus destinos. Seguramente, el becario se equivocó al introducir el tiempo de vuelo y se trate de un error en los datos. Calcula para ello el cociente entre el tiempo en el aire de cada vuelo relativo al tiempo de vuelo del avión que tardó menos en llegar a dicho destino. ¿Qué vuelos fueron los que más se retrasaron en el aire?
+Vamos a por los destinos esta vez. Localiza vuelos que llegaron "demasiado rápido" a sus destinos. Seguramente, el becario se equivocó al introducir el tiempo de vuelo y se trate de un error en los datos. Calcula para ello el cociente entre el tiempo en el aire de cada vuelo relativo al tiempo de vuelo del avión que tardó menos en llegar a dicho destino. ¿Qué vuelos fueron los que más se retrasaron en el aire?
 
 
 

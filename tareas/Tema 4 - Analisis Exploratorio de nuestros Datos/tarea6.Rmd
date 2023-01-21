@@ -1,0 +1,25 @@
+---
+title: "Tarea: Visualización de la Covariación entre Variables"
+author: "Jesus Mudarra Luján"
+date: "`r Sys.Date()`"
+output: pdf_document
+header-includes:
+- \definecolor{shadecolor}{RGB}{235,235,235}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, comment = "")
+library(tidyverse)
+```
+
+## Pregunta 1
+
+## Pregunta 2
+
+## Pregunta 3
+
+## Pregunta 4
+
+## Pregunta 5
+
+## Pregunta 6
