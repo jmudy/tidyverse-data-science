@@ -8,7 +8,7 @@ header-includes:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, comment = "")
+knitr::opts_chunk$set(echo = TRUE, comment = "", message = F, warning = F)
 library(tidyverse)
 library(nycflights13)
 ```
@@ -17,37 +17,65 @@ library(nycflights13)
 
 Intenta describir con frases entendibles el conjunto de vuelos retrasados. Intenta dar afirmaciones como por ejemplo:
 
-* Un vuelo tiende a salir unos 20 minutos antes el 50% de las veces y a salir tarde el 50% de las veces restantes.
+* Un vuelo tiende a salir unos 5 minutos antes el 21% de las veces y a salir tarde el 30% de las veces restantes:
 
-* Los vuelos de la compañía XX llegan siempre 20 minutos tarde.
+```{r}
+# Cargar librerías
+flights %>%
+  summarize(cinco_min_antes = mean(dep_delay < -5, na.rm = TRUE),
+            cinco_min_tarde = mean(dep_delay > 5, na.rm = TRUE))
+```
 
-* El 95% de los vuelos a HNL llegan a tiempo, pero el 5% restante se retrasan más de 3 horas.
+* Los vuelos de la compañía `MQ` nunca llegan más de una hora antes:
 
+```{r}
+flights %>%
+  filter(carrier=="MQ") %>%
+  summarise(min_time = min(arr_delay, na.rm=T))
+```
 
+* El 66% de los vuelos a `HNL` llegan a tiempo y casi el 13% se retrasan más de 20 minutos:
 
+```{r}
+flights %>%
+  filter(dest == "HNL") %>%
+  summarise(a_tiempo = mean(arr_delay <= 0, na.rm = TRUE),
+            mas_de_3_horas = mean(arr_delay > 20, na.rm = TRUE))
+```
 
-## Pregunta 2 HECHA A MEDIAS
+## Pregunta 2
+
+Primero guardamos los vuelos no cancelados:
+
+```{r}
+not_cancelled <- flights %>%
+  filter(!is.na(air_time))
+```
 
 Da una versión equivalente a las pipes siguientes sin usar la función `count`:
 
 ```{r, eval=FALSE}
-not_cancelled %>%
-  count(dest)
+not_cancelled %>% count(dest)
 ```
+
+Alternativa:
 
 ```{r}
 not_cancelled %>%
-  group_by(tailnum) %>%
+  group_by(dest) %>%
   summarise(n = n())
 ```
 
 ```{r, eval=FALSE}
-not_cancelled %>%
-  count(tailnum, wt = distance)
+not_cancelled %>% count(tailnum, wt = distance)
 ```
 
-```{r}
+Alternativa:
 
+```{r}
+not_cancelled %>%
+  group_by(tailnum) %>%
+  summarise(total_distance = sum(distance,na.rm=T))
 ```
 
 ## Pregunta 3
@@ -58,49 +86,113 @@ Para definir un vuelo cancelado hemos usado la función:
 
 Intenta dar una definición que sea mejor, ya que la nuestra es un poco subóptima. ¿Cuál es la columna más importante?
 
+```{r}
+cancelled <- flights %>%
+  filter(is.na(dep_time))
+```
 
-
-
+La columna más importante es `dep_time` que nos indica la hora de salida. Si el valor de `dep_time` es `NA`, ya nos indica que el vuelo ha sido cancelado y no es necesario el valor de otras variables.
 
 ## Pregunta 4
 
 Investiga si existe algún patrón del número de vuelos que se cancelan cada día.
 
+```{r}
+flights %>%
+  filter(is.na(dep_time)) %>%
+  group_by(year, month, day) %>%
+  summarise(count = n()) %>%
+  ggplot(aes(x = as.Date(paste(year,month,day,sep="-")), y = count)) +
+    geom_line() +
+    labs(title = "Evolución del Número de Vuelos Cancelados",
+         x = "Fecha",
+         y = "Número de Vuelos Cancelados")
+```
+
+Los retrasos se incrementan en los meses de las vacaciones de verano y festivos por Navidad y principios de año.
+
 Investiga si la proporción de vuelos cancelados está relacionada con el retraso promedio por día en los vuelos.
+
+```{r}
+#proporción de vuelos cancelados vs retraso promedio por día
+flights %>%
+  group_by(year,month,day) %>%
+  summarize(proporcion_cancelados = mean(is.na(dep_time)),
+            retraso_promedio = mean(dep_delay, na.rm=T)) %>%
+  ggplot(mapping = aes(x = proporcion_cancelados, y = retraso_promedio)) +
+  geom_point(alpha = 0.2)
+```
+
+No se observa ningún tipo de relación entre la proporción de vuelos cancelados y el retraso promedio cuando agrupamos por días.
 
 Investiga si la proporción de vuelos cancelados está relacionada con el retraso promedio por aeropuerto en los vuelos.
 
+```{r}
+#proporción de vuelos cancelados vs retraso promedio por aeropuerto
+flights %>%
+  group_by(origin) %>%
+  summarize(proporcion_cancelados = mean(is.na(dep_time)),
+            retraso_promedio = mean(dep_delay, na.rm=T))
+```
+
+No existe ninguna relación entre la proporción de vuelos cancelados y el retraso promedio cuando agrupamos por aeropuertos de salida.
+
 ¿Qué compañía aérea sufre los peores retrasos?
 
+```{r}
+flights %>%
+  group_by(carrier) %>%
+  summarize(retraso = mean(dep_delay, na.rm=T)) %>%
+  arrange(desc(retraso))
+```
 
-
+La compañía aérea que sufre más retrasos es `Envoy Air (MQ)` 
 
 ## Pregunta 5
 
 Difícil: Intenta desentrañar los efectos que producen los retrasos por culpa de malos aeropuertos vs malas compañías aéreas. Por ejemplo, intenta usar:
 
-```{r, eval=FALSE}
-flights %>%
+```{r}
+vuelos_por_comp_dest <- flights %>%
   group_by(carrier, dest) %>%
-  summarise(n())
+  summarise(num_vuelos = n())
+
+retrasos_por_comp_dest <- flights %>%
+  group_by(carrier, dest) %>%
+  summarise(mean_dep_delay = mean(dep_delay, na.rm = TRUE),
+            prop_retrasos = mean(dep_delay > 0, na.rm = TRUE))
+
+resumen_final <- left_join(vuelos_por_comp_dest, retrasos_por_comp_dest, by = c("carrier","dest"))
+
+umbral_min_vuelos <- 50  # Por ejemplo, compañías con al menos 50 vuelos
+resumen_filtrado <- resumen_final %>%
+  filter(num_vuelos >= umbral_min_vuelos)
+
+plot(resumen_filtrado$prop_retrasos, resumen_filtrado$mean_dep_delay,
+     xlab = "Proporción de Retrasos", ylab = "Retraso Promedio en la Salida",
+     main = "Relación entre Retrasos y Compañías Aéreas por Destino")
 ```
+
+Se ve una clara tendencia ascendente en el retraso promedio en la salida al aumentar  la proporción de retrasos.
 
 ## Pregunta 6
 
 ¿Qué hace el parámetro `sort` como argumento de `count()`? ¿Cuándo puede sernos útil?
 
+El parámetro `sort` en la función `count()` controla si los resultados se deben ordenar o no en orden descendente cuando se realiza el conteo.
+
 Vuelve a la lista de funciones útiles para filtrar y mutar y describe cómo cada operación cambia cuando la juntamos con un `group_by`.
 
+No entiendo esta pregunta.
 
-
-## Pregunta 7 HECHA
+## Pregunta 7
 
 Vamos a por los peores aviones. Investiga el top 10 de qué aviones (número de cola y compañía) llegaron más tarde a su destino.
 
 ```{r}
 top_tarde <- flights %>%
   group_by(tailnum, carrier) %>%
-  summarise(mean = mean(arr_delay, na.rm = T)) %>%
+  summarise(mean = mean(arr_delay, na.rm=T)) %>%
   arrange(desc(mean))
 head(top_tarde, 10)
 ```
@@ -109,14 +201,38 @@ head(top_tarde, 10)
 
 Queremos saber qué hora del día nos conviene volar si queremos evitar los retrasos en la salida.
 
+```{r}
+flights %>%
+  group_by(hour) %>%
+  summarize(retraso_promedio = mean(dep_delay, na.rm=TRUE)) %>%
+  arrange(retraso_promedio)
+```
+
+A las 5 de la mañana es la hora del día que conviene volar ya que es cuando menos retrasos se han producido en la salida.
+
 Difícil: Queremos saber qué día de la semana nos conviene volar si queremos evitar los retrasos en la salida.
 
+```{r}
+flights %>%
+  mutate(day_of_week = weekdays(as.Date(paste(year,month,day,sep="-")))) %>%
+  group_by(day_of_week) %>%
+  summarize(retraso_promedio = mean(dep_delay, na.rm=TRUE)) %>%
+  arrange(retraso_promedio)
+```
 
-
+El día de la semana que más conviene volar es el sábado.
 
 ## Pregunta 9
 
 Para cada destino, calcula el total de minutos de retraso acumulado.
+
+```{r}
+flights %>%
+  group_by(dest) %>%
+  summarise(total_min_delay_cum = sum(dep_delay, na.rm=T)) %>%
+  arrange(desc(total_min_delay_cum))
+```
+
 
 Para cada uno de ellos, calcula la proporción del total de retraso para dicho destino.
 
@@ -129,21 +245,72 @@ Para cada uno de ellos, calcula la proporción del total de retraso para dicho d
 Los retrasos suelen estar correlacionados con el tiempo. Aunque el problema que ha causado el primer retraso de un avión se resuelva, el resto de vuelos se retrasan para que salgan primero los aviones que debían haber partido antes. Intenta usar la función `lag()` y explora cómo el retraso de un avión se relaciona con el retraso del avión inmediatamente anterior o posterior.
 
 
+```{r}
+flights_with_delays <- flights %>%
+  arrange(year, month, day, dep_time) %>%
+  mutate(previous_dep_delay = lag(dep_delay, order_by = dep_time),
+         next_dep_delay = lead(dep_delay, order_by = dep_time))
+```
 
-
+```{r}
+correlation_previous <- cor(flights_with_delays$dep_delay,
+                            flights_with_delays$previous_dep_delay, use = "complete.obs")
+correlation_previous
+correlation_next <- cor(flights_with_delays$dep_delay,
+                        flights_with_delays$next_dep_delay, use = "complete.obs")
+correlation_next
+```
 
 ## Pregunta 11
 
 Vamos a por los destinos esta vez. Localiza vuelos que llegaron "demasiado rápido" a sus destinos. Seguramente, el becario se equivocó al introducir el tiempo de vuelo y se trate de un error en los datos. Calcula para ello el cociente entre el tiempo en el aire de cada vuelo relativo al tiempo de vuelo del avión que tardó menos en llegar a dicho destino. ¿Qué vuelos fueron los que más se retrasaron en el aire?
 
-
-
+```{r}
+flights %>%
+  group_by(dest) %>%
+  mutate(tiempo_aire_relativo = air_time/min(air_time, na.rm=T)) %>%
+  arrange(desc(tiempo_aire_relativo)) %>%
+  select(tailnum, tiempo_aire_relativo)
+```
 
 ## Pregunta 12
 
 Encuentra todos los destinos a los que vuelan dos o más compañías y para cada uno de ellos, crea un ranking de las mejores compañías para volar a cada destino (utiliza el criterio que consideres más conveniente como probabilidad de retraso, velocidad o tiempo de vuelo, número de vuelos al año...)
 
+```{r}
+destinos_multiples <- flights %>%
+  group_by(dest) %>%
+  summarize(num_comp = n_distinct(carrier)) %>%
+  filter(num_comp >= 2)
+head(destinos_multiples)
+```
+
+```{r}
+probabilidad_retraso <- flights %>%
+  group_by(carrier, dest) %>%
+  summarize(probabilidad_retraso = mean(dep_delay > 0, na.rm = TRUE))
+
+destinos_con_multiples_comp <- destinos_multiples %>%
+  left_join(probabilidad_retraso, by = "dest")
+
+ranking_comp_por_destino <- destinos_con_multiples_comp %>%
+  arrange(dest, probabilidad_retraso) %>%
+  group_by(dest) %>%
+  mutate(ranking = row_number()) %>%
+  filter(ranking <= 3)  
+
+head(ranking_comp_por_destino) # Seleccionar las 3 mejores compañías por destino
+```
+
 Finalmente, para cada avión (basándonos en el número de cola) cuenta el número de vuelos que hace antes de sufrir su primer retraso de más de una hora. Valora entonces la fiabilidad del avión o de la compañía aérea asociada al mismo.
 
-
+```{r}
+flights %>%
+  arrange(tailnum, year, month, day, dep_time) %>%
+  group_by(tailnum) %>%
+  mutate(primer_retraso = cumsum(dep_delay > 60) == 0) %>%
+  filter(primer_retraso) %>%
+  summarize(num_vuelos_sin_retraso = n()) %>%
+  arrange(desc(num_vuelos_sin_retraso))
+```
 
