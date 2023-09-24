@@ -2,4 +2,4 @@
 
 ## Instalación de R
 
-Se ha utilizado `R 4.2.1 Patched`, y que se puede descargar en el siguiente [link](https://cran.r-project.org/bin/windows/base/R-4.2.1patched-win.exe).
+Se ha utilizado la versión `R 4.3.1`, y que se puede descargar en el siguiente [link](https://cran.r-project.org/bin/windows/base/R-4.3.1-win.exe).

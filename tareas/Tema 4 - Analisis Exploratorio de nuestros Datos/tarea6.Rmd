@@ -8,18 +8,102 @@ header-includes:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, comment = "")
+knitr::opts_chunk$set(echo = TRUE,
+                      warning = FALSE,
+                      message = FALSE,
+                      comment = "",
+                      out.width = "70%",
+                      out.height = "70%",
+                      fig.align = "center")
 library(tidyverse)
 ```
 
 ## Pregunta 1
 
+Es hora de aplicar todo lo que hemos aprendido para visualizar mejor los tiempos de salida para vuelos cancelados vs los no cancelados. Recuerda bien qué tipo de dato tenemos en cada caso. ¿Qué deduces acerca de los retrasos según la hora del día a la que está programada el vuelo de salida?
+
 ## Pregunta 2
+
+* ¿Qué variable del dataset de diamantes crees que es la más importante para poder predecir el precio de un diamante?
+
+
+
+* ¿Qué variable del dataset de diamantes crees que es la que más correlacionada está con cut?
+
+
+
+* ¿Por qué combinar estas dos variables nos lleva a que los diamantes con peor calidad son los mas caros?
+
+
 
 ## Pregunta 3
 
+Instala el paquete de ggstance y úsalo para crear un boxplot horizontal. Compara el resultado con usar el `coord_flip()` que hemos visto en clase.
+
 ## Pregunta 4
+
+Los boxplots nacen en una época donde los datasets eran mucho más pequeños y la palabra big data no era más que un concepto futurista. De ahí que los datos considerados con outliers tuvieran sentido que fueran representados con puntos dado que su existencia era más bien escasa o nula. Para solucionar este problema, existe el letter value plot del paquete `lvplot`. Instala dicho paquete y usa la geometría `geom_lv()` para mostrar la distribución de precio vs cut de los diamantes. ¿Qué observas y qué puedes interpretar a raíz de dicho gráfico?
 
 ## Pregunta 5
 
+Compara el uso de la geometría `geom_violin()` con un facet de `geom_histogram()` y contra un `geom_freqpoly()` coloreado. Investiga cuales son los pros y los contras de cada uno de los tipos de representación.
+
 ## Pregunta 6
+
+Si tenemos datasets pequeños, a veces es útil usar la opción que ya conocemos de `geom_jitter()` para ver la relación entre una variable continua y una variable categórica. El paquete de R `ggbeeswarm` tiene un par de métodos similares a `geom_jitter()` que te pueden ayudar a tal efecto. Lístalos y haz un gráfico con cada uno de ellos para ver qué descripción de los datos podemos extraer de cada uno. ¿A qué gráfico de los que ya has visto durante esta práctica se parece?
+
+## Pregunta 7
+
+Los mapas de calor que hemos visto tienen un claro problema de elección de los colores.
+
+* ¿Cómo podríamos reescalar el campo count del dataset de diamantes cuando cruzamos `color` y `cut` para observar mejor la distribución de dicho cruce?
+
+* ¿Por qué resulta mejor usar la estética `aes(x = color, y = cut)` en lugar de `aes(x=cut, y = color)`?
+
+## Pregunta 8
+
+* Utiliza la `geom_tile()` junto con `dplyr` para explorar si el promedio del retraso de los vuelos varía con respecto al destino y mes del año.
+
+
+
+* ¿Qué hace que este gráfico sea difícil de leer o de interpretar?
+
+
+
+* ¿Cómo puedes mejorar la visualización?
+
+## Pregunta 9
+
+En lugar de hacer un resumen de la distribución condicional de dos variables numéricas con un boxplot, se puede usar un polígono de frecuencias.
+
+* ¿Qué hay que tener en cuenta cuando usas `cut_width()` o cuando usas `cut_number()`?
+
+
+* ¿Cómo influye este hecho en la visualización 2D de `carat` y `price`?
+
+
+* Da la mejor visualización posible de carat dividido por `price.`
+
+
+## Pregunta 10
+
+Compara la distribución del precio de los diamantes grandes vs diamantes pequeños. Elige el concepto de grande y pequeño que consideres. Comenta el resultado.
+
+## Pregunta 11
+
+Combina diferentes técnicas de `ggplot` para visulaizar la distribución combinada de `cut`, `carat` y `price`.
+
+## Pregunta 12
+
+Los plots en 2D pueden revelar outliers que no se ven en plots de una sola dimensión. Por ejemplo, algunos puntos del plot dado por:
+
+```{r}
+ggplot(data = diamonds) +
+  geom_point(mapping = aes(x = x, y = y)) +
+  coord_cartesian(xlim = c(4,12), ylim = c(4,12))
+```
+
+hacen destacar muchísimo los outliers combinando x con y, a pesar de que por separado parecen valores normales.
+
+Intenta averiguar por qué un scatterplot resulta más efectivo en este caso que un gráfico con agrupaciones.
+

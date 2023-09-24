@@ -8,7 +8,13 @@ header-includes:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, comment = "")
+knitr::opts_chunk$set(echo = TRUE,
+                      warning = FALSE,
+                      message = FALSE,
+                      comment = "",
+                      out.width = "70%",
+                      out.height = "70%",
+                      fig.align = "center")
 library(tidyverse)
 ```
 
@@ -16,20 +22,28 @@ library(tidyverse)
 
 Explora la distribución de las variables `x`, `y`, `z` del dataset de `diamonds`. ¿Qué podemos inferir?
 
-Busca un diamante (por internet por ejemplo) y decide qué dimensiones pueden ser aceptables para las medidas de longitud, altura y anchura de un diamante.
-
 ```{r}
 ggplot(data = diamonds) +
-  geom_histogram(mapping = aes(x = x), binwidth = 1)
+  geom_histogram(mapping = aes(x = x), binwidth = 0.5)
 
 ggplot(data = diamonds) +
-  geom_histogram(mapping = aes(x = y), binwidth = 1)
+  geom_histogram(mapping = aes(x = y), binwidth = 0.5)
 
 ggplot(data = diamonds) +
-  geom_histogram(mapping = aes(x = z), binwidth = 1)
+  geom_histogram(mapping = aes(x = z), binwidth = 0.5)
 ```
 
+En las variables `y` y `z` hay presencia de outliers muy pronunciados. También, se observa que la mayoría de valores en la coordenada `x` se acumulan en 6mm, en la coordenada `y` en 5mm, y en la coordenada `z` en 3mm.
+ 
+Busca un diamante (por internet por ejemplo) y decide qué dimensiones pueden ser aceptables para las medidas de longitud, altura y anchura de un diamante.
 
+Ejemplo con el zafiro ovalado:
+
+* Longitud (x): Un zafiro ovalado típico podría tener una longitud de alrededor de 6-7 mm.
+
+* Anchura (y): La anchura de zafiro ovalado típico suele ser de aproximadamente 4-5 mm.
+
+* Profundo (z): En general, los zafiros suelen tener una profundidad que varía entre el 40% y el 80% de su longitud, dependiendo de su forma y estilo de corte, aproximadamente 2.5-5 mm.
 
 ## Pregunta 2
 
@@ -39,12 +53,12 @@ Recuerda hacer uso del parámetro `binwidth` para probar un rango dispar de valo
 
 ```{r}
 ggplot(data = diamonds) +
-  geom_histogram(mapping = aes(x = price), binwidth = 2500)
+  geom_histogram(mapping = aes(x = price), binwidth = 100)
 ```
 
+Se observa una caída exponencial en el precio del diamante. Se concluye que los diamantes cuanto más caros menos unidades hay. Llama la atención la ausencia de valores en aproximadamente 1500$.
 
-
-## Pregunta 3 
+## Pregunta 3
 
 ¿Cuántos diamantes hay de 0.99 kilates? ¿Y de exactamente 1 kilate?
 
@@ -60,9 +74,11 @@ diamonds %>%
   summarise(count = n())
 ```
 
+hay 23 diamantes de 0.99 kilates y 1558 diamantes de 1 kilate.
+
 ¿A qué puede ser debida esta diferencia?
 
-
+Por la diferencia que existe se entiende que los diamantes cercanos a un kilate se redondea a la unidad. En este caso, hay 23 diamantes que no han sido redondeados.
 
 ## Pregunta 4
 
@@ -70,23 +86,36 @@ Compara y contrasta el uso de las funciones `coord_cartesian()` frente `xlim()` 
 
 ¿Qué ocurre si dejamos el parámetro `binwidth` sin configurar?
 
+Dejando el `binwidth` se intenta calcular automáticamente un valor apropiado para los bins en función de los datos proporcionados.
+
 ¿Qué ocurre si hacemos zoom y solamente se ve media barra?
 
-
-
+Ver solamente media barra indica que los datos dentro de ese rango están muy concentrados o que el ancho utilizado es demasiado grande para mostrar los detalles.
 
 ## Pregunta 5
 
-* ¿Qué ocurre cuando hay NAs en un histograma?
+* ¿Qué ocurre cuando hay `NAs` en un histograma?
 
-* ¿Qué ocurre cuando hay NAs en un diagrama de barras?
+```{r}
+ggplot(data = airquality) +
+  geom_histogram(mapping = aes(x = Ozone), binwidth = 1)
+```
+
+Utilizando la función `geom_histogram()` de `ggplot` se excluye automáticamente los valores `NAs`.
+
+* ¿Qué ocurre cuando hay `NAs` en un diagrama de barras?
+
+```{r}
+ggplot(data = airquality) +
+  geom_bar(mapping = aes(x = Ozone))
+```
+Utilizando la función `geom_bar()` de `ggplot` se excluye automáticamente los valores `NAs`.
 
 * ¿Qué diferencias observas?
 
+Visualmente parece que se no se han realizado los mismos intervalos, da la sensación que en el diagrama de barras hay más presencia de valores faltantes.
 
-
-
-## Pregunta 6 HECHA
+## Pregunta 6
 
 ¿Qué hace la opción `na.rm = TRUE` en las funciones `mean()` y `sum()`?
 
