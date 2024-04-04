@@ -28,7 +28,7 @@ Es hora de aplicar todo lo que hemos aprendido para visualizar mejor los tiempos
 
 
 
-* ¿Qué variable del dataset de diamantes crees que es la que más correlacionada está con cut?
+* ¿Qué variable del dataset de diamantes crees que es la que más correlacionada está con `cut`?
 
 
 
@@ -38,7 +38,7 @@ Es hora de aplicar todo lo que hemos aprendido para visualizar mejor los tiempos
 
 ## Pregunta 3
 
-Instala el paquete de ggstance y úsalo para crear un boxplot horizontal. Compara el resultado con usar el `coord_flip()` que hemos visto en clase.
+Instala el paquete de `ggstance` y úsalo para crear un boxplot horizontal. Compara el resultado con usar el `coord_flip()` que hemos visto en clase.
 
 ## Pregunta 4
 
@@ -91,7 +91,7 @@ Compara la distribución del precio de los diamantes grandes vs diamantes peque�
 
 ## Pregunta 11
 
-Combina diferentes técnicas de `ggplot` para visulaizar la distribución combinada de `cut`, `carat` y `price`.
+Combina diferentes técnicas de `ggplot` para visualizar la distribución combinada de `cut`, `carat` y `price`.
 
 ## Pregunta 12
 
